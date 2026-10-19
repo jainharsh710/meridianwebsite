@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /wrangler.jsonc.txt
 
 Sitemap: https://meridiancapital.in/sitemap.xml
