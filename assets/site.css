@@ -331,7 +331,15 @@ td{padding:14px 16px 14px 0;border-top:1px solid var(--line-dark)}
 .sessions .cur span::before{content:"● ";font-size:11px}
 
 /* ---- Wider map, no first-view CTA ---- */
-.stage{width:min(100%, 1280px, calc((100svh - 68px - 150px) * 2.128))}
+.stage{width:min(100%, 1280px, calc((100svh - 68px - 290px) * 2.128))}
+/* Keep the whole hero above the fold on shorter laptop screens */
+@media (min-width:861px) and (max-height:820px){
+  .hero{padding-block:16px 8px}
+  .hero-bar{margin-top:12px;gap:24px}
+  .ro{gap:4px}
+  .ro-num{font-size:clamp(48px,8.5svh,80px)}
+  .stage{width:min(100%, 1280px, calc((100svh - 68px - 250px) * 2.128))}
+}
 
 /* ---- Map load, ripple ---- */
 #map circle{transition:opacity .55s ease var(--d,0s), fill-opacity .3s ease var(--r,0s), r .3s ease var(--r,0s)}
