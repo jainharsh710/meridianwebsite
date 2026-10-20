@@ -1,0 +1,6 @@
+anthropic>=0.69
+requests>=2.32
+markdown>=3.6
+beautifulsoup4>=4.12
+feedparser>=6.0
+google-auth>=2.30

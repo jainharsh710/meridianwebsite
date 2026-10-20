@@ -1,0 +1,17 @@
+{
+  "pillar_weights": {
+    "P1": 0.167,
+    "P2": 0.167,
+    "P3": 0.167,
+    "P4": 0.167,
+    "P5": 0.167,
+    "P6": 0.167
+  },
+  "max_keyword_difficulty": 20,
+  "format_rules": {
+    "min_case_study_per_4w": 1,
+    "min_explainer_or_guide_per_4w": 1,
+    "max_news_per_4w": 2
+  },
+  "changes": []
+}
