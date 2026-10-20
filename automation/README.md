@@ -6,7 +6,7 @@ Runs entirely on GitHub Actions; nothing runs on anyone's laptop.
 ## What runs when
 - `.github/workflows/seo-weekly.yml`: Monday 02:00 IST. Learns from Search Console, emails last week's
   results, picks a topic, researches, writes, edits, runs the compliance gate, builds the page, pushes to
-  `main` (Cloudflare deploys it), confirms it is live, pings IndexNow, resubmits the sitemap, emails the article.
+  `master` (Cloudflare deploys it), confirms it is live, pings IndexNow, resubmits the sitemap, emails the article.
 - `.github/workflows/seo-daily-index.yml`: daily 09:00 IST. Records which posts Google has indexed.
 
 ## Controls

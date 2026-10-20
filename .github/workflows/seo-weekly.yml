@@ -75,8 +75,8 @@ jobs:
           if [ "$DRY_RUN" = "true" ]; then
             git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" "HEAD:refs/heads/seo-dry-run/$(date +%Y-%m-%d-%H%M)"
           else
-            git pull --rebase "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" main
-            git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:main
+            git pull --rebase "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" master
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:master
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -92,7 +92,7 @@ jobs:
         run: |
           git stash --include-untracked || true
           git revert --no-edit "${{ steps.push.outputs.sha }}"
-          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:main
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:master
 
       - name: Save run data
         if: success() && steps.prep.outputs.publish_ready == 'true'
@@ -105,6 +105,6 @@ jobs:
           if [ "$DRY_RUN" = "true" ]; then
             git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" "HEAD:refs/heads/seo-dry-run/$(date +%Y-%m-%d-%H%M)-data"
           else
-            git pull --rebase "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" main
-            git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:main
+            git pull --rebase "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" master
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}" HEAD:master
           fi
