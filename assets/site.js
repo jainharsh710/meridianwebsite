@@ -105,7 +105,7 @@
     }
     if(!key||key.indexOf('YOUR_')===0){var d=document.createElement('div');d.className='done';d.setAttribute('role','status');var h=document.createElement('h3');h.textContent='Thanks, '+name.split(' ')[0]+'.';var p=document.createElement('p');p.className='lede';p.textContent='Preview: the form isn’t connected to an inbox yet, so nothing was sent.';d.append(h,p);document.getElementById('formWrap').replaceChildren(d);return;}
     btn.disabled=true;btn.textContent='Sending…';
-    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:key,subject:'New enquiry from Meridian Capital website',from_name:'Meridian Capital website',name:name,email:email,phone:v('f-phone'),city:v('f-city'),amount:v('f-amount'),botcheck:v('f-bot')})})
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:key,subject:'New enquiry from Meridian Capital website',from_name:'Meridian Capital website',name:name,email:email,phone:v('f-phone'),city:v('f-city'),amount:v('f-amount'),botcheck:document.getElementById('f-bot').checked})})
       .then(function(r){return r.json();}).then(function(j){done(!!j.success);}).catch(function(){done(false);});
   });}
 })();
