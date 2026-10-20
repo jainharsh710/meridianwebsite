@@ -2,3 +2,5 @@
 /international-investment /international-investing 301
 /invest-abroad /international-investing 301
 /global-investing /international-investing 301
+/automation/* / 301
+/.github/* / 301
