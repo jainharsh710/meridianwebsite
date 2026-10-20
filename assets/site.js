@@ -99,7 +99,7 @@
     function done(ok){
       var d=document.createElement('div');d.className='done';d.setAttribute('role','status');
       var h=document.createElement('h3');var p=document.createElement('p');p.className='lede';
-      if(ok){h.textContent='Thanks, '+name.split(' ')[0]+'.';p.textContent='We’ll be in touch within two working days.';}
+      if(ok){if(window.gtag)gtag('event','generate_lead',{form_name:'contact'});h.textContent='Thanks, '+name.split(' ')[0]+'.';p.textContent='We’ll be in touch within two working days.';}
       else{h.textContent='That didn’t go through.';p.textContent='Please email us directly and we’ll reply within two working days.';}
       d.append(h,p);document.getElementById('formWrap').replaceChildren(d);
     }
