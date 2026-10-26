@@ -70,7 +70,7 @@
     })(t0);
   }
 
-  var targets=document.querySelectorAll('.rv-line,.rv-line-b,.slab,.vs,.countup,.steps,.tiles');
+  var targets=document.querySelectorAll('.rv-line,.rv-line-b,.slab,.vs,.countup,.steps,.tiles,.flow,.gets');
   if('IntersectionObserver' in window&&!reduce){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');if(e.target.classList.contains('countup'))countUp(e.target);io.unobserve(e.target);}});},{rootMargin:'0px 0px -12% 0px'});
     targets.forEach(function(el){io.observe(el);});
@@ -86,26 +86,69 @@
   });
   window.addEventListener('pageshow',function(){document.body.classList.remove('leaving');});
 
-  /* Contact form: sends through Web3Forms once an access key is set */
-  var f=document.getElementById('contactForm');
-  if(f){var err=document.getElementById('formErr');f.addEventListener('submit',function(e){
-    e.preventDefault();
-    var v=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
-    var name=v('f-name'), email=v('f-email');
-    if(!name){err.textContent='Add your name.';document.getElementById('f-name').focus();return;}
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Enter a valid email, like name@domain.com.';document.getElementById('f-email').focus();return;}
-    err.textContent='';
-    var btn=f.querySelector('button[type=submit]'), key=f.dataset.key||'';
-    function done(ok){
-      var d=document.createElement('div');d.className='done';d.setAttribute('role','status');
-      var h=document.createElement('h3');var p=document.createElement('p');p.className='lede';
-      if(ok){if(window.gtag)gtag('event','generate_lead',{form_name:'contact'});h.textContent='Thanks, '+name.split(' ')[0]+'.';p.textContent='We’ll be in touch within two working days.';}
-      else{h.textContent='That didn’t go through.';p.textContent='Please email us directly and we’ll reply within two working days.';}
-      d.append(h,p);document.getElementById('formWrap').replaceChildren(d);
-    }
-    if(!key||key.indexOf('YOUR_')===0){var d=document.createElement('div');d.className='done';d.setAttribute('role','status');var h=document.createElement('h3');h.textContent='Thanks, '+name.split(' ')[0]+'.';var p=document.createElement('p');p.className='lede';p.textContent='Preview: the form isn’t connected to an inbox yet, so nothing was sent.';d.append(h,p);document.getElementById('formWrap').replaceChildren(d);return;}
-    btn.disabled=true;btn.textContent='Sending…';
-    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:key,subject:'New enquiry from Meridian Capital website',from_name:'Meridian Capital website',name:name,email:email,phone:v('f-phone'),city:v('f-city'),amount:v('f-amount'),botcheck:document.getElementById('f-bot').checked})})
-      .then(function(r){return r.json();}).then(function(j){done(!!j.success);}).catch(function(){done(false);});
-  });}
+  /* Contact tabs: investor | partner (?type=partner opens the partner tab) */
+  var tabInv=document.getElementById('tab-inv'), tabPar=document.getElementById('tab-par');
+  if(tabInv&&tabPar){
+    var show=function(par,focus){
+      tabInv.setAttribute('aria-selected',par?'false':'true');tabPar.setAttribute('aria-selected',par?'true':'false');
+      tabInv.tabIndex=par?-1:0;tabPar.tabIndex=par?0:-1;
+      document.getElementById('panel-inv').hidden=par;document.getElementById('panel-par').hidden=!par;
+      if(focus)(par?tabPar:tabInv).focus();
+      try{var u=new URL(location.href);if(par)u.searchParams.set('type','partner');else u.searchParams.delete('type');history.replaceState(null,'',u);}catch(e){}
+    };
+    tabInv.addEventListener('click',function(){show(false);});
+    tabPar.addEventListener('click',function(){show(true);});
+    [tabInv,tabPar].forEach(function(t){t.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();show(t===tabInv,true);}});});
+    var qs=new URLSearchParams(location.search);
+    if(qs.get('type')==='partner')show(true);
+    var ref=qs.get('ref')||qs.get('utm_source')||'';
+    document.querySelectorAll('.mc-form .ref').forEach(function(i){i.value=ref;});
+  }
+
+  /* Partner CTAs: track clicks; sticky bar on mobile after the hero */
+  document.querySelectorAll('a[data-ev]').forEach(function(a){a.addEventListener('click',function(){if(window.gtag)gtag('event','partner_cta_click',{placement:a.dataset.ev});});});
+  var sticky=document.getElementById('stickyCta'), pHero=document.querySelector('.p-hero');
+  if(sticky&&pHero){
+    document.body.classList.add('has-sticky');
+    var onS=function(){var past=window.scrollY>pHero.offsetHeight*0.8, nearEnd=window.innerHeight+window.scrollY>document.body.scrollHeight-260;sticky.classList.toggle('show',past&&!nearEnd);};
+    window.addEventListener('scroll',onS,{passive:true});onS();
+  }
+
+  /* Forms: send through Web3Forms. Investor → generate_lead, partner → partner_lead */
+  var MSG={
+    name:'Add your name.', email:'Enter a valid email, like name@domain.com.', phone:'Add a mobile number we can WhatsApp.',
+    city:'Add your city.', type:'Tell us what you do.', aum:'Pick the assets you service.'
+  };
+  document.querySelectorAll('form.mc-form').forEach(function(f){
+    var err=f.querySelector('.err'), kind=f.dataset.kind, partner=kind==='partner';
+    f.addEventListener('submit',function(e){
+      e.preventDefault();
+      var bad=null;
+      f.querySelectorAll('[data-req]').forEach(function(el){
+        if(bad)return; var k=el.dataset.req, val=el.value.trim();
+        if(k==='email'?!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val):k==='phone'?val.replace(/\D/g,'').length<10:!val)bad=el;
+      });
+      if(bad){err.textContent=MSG[bad.dataset.req];bad.focus();return;}
+      err.textContent='';
+      var data={}; Array.prototype.forEach.call(f.elements,function(el){if(el.name&&el.type!=='checkbox'&&el.type!=='submit')data[el.name]=el.value.trim();});
+      var name=data.name, first=name.split(' ')[0];
+      var wrap=document.getElementById(f.dataset.wrap), btn=f.querySelector('button[type=submit]'), key=f.dataset.key||'';
+      function card(title,body){var d=document.createElement('div');d.className='done';d.setAttribute('role','status');var h=document.createElement('h3');h.textContent=title;var p=document.createElement('p');p.className='lede';p.textContent=body;d.append(h,p);wrap.replaceChildren(d);}
+      function done(ok){
+        if(ok){
+          if(window.gtag)gtag('event',partner?'partner_lead':'generate_lead',{form_name:kind});
+          card('Thanks, '+first+'.',partner?'One of our founders will call you within 2 working days.':'We’ll be in touch within two working days.');
+        } else card('That didn’t go through.','Please email us at '+(partner?'partners@':'hello@')+'meridiancapital.in and we’ll reply within two working days.');
+      }
+      if(!key||key.indexOf('YOUR_')===0){card('Thanks, '+first+'.','Preview: the form isn’t connected to an inbox yet, so nothing was sent.');return;}
+      btn.disabled=true;btn.textContent='Sending…';
+      data.access_key=key;
+      data.subject=partner?('New partner enquiry: '+name+', '+(data.city||'')+', '+(data.aum_band||'')):'New investor enquiry: '+name;
+      data.from_name='Meridian Capital website';
+      data.enquiry_type=kind;
+      data.botcheck=f.querySelector('.bot').checked;
+      fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+        .then(function(r){return r.json();}).then(function(j){done(!!j.success);}).catch(function(){done(false);});
+    });
+  });
 })();
